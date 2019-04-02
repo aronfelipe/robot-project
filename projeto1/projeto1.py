@@ -15,10 +15,23 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge, CvBridgeError
 import cormodule
+from std_msgs.msg import UInt8
+import math
 
+
+velocidade = None
+
+bumper = None
+
+def Bump(dado):
+	global bumper
+	bumper = dado.data
+	print(bumper)
 
 bridge = CvBridge()
 
+v = 0.1 #velocidade linear
+w = math.pi/8 #velocidade angular
 cv_image = None
 media = []
 centro = []
@@ -55,7 +68,7 @@ def roda_todo_frame(imagem):
 		print('ex', e)
 	
 if __name__=="__main__":
-	rospy.init_node("cor")
+	rospy.init_node("projeto1")
 
 	topico_imagem = "/kamera"
 	
@@ -80,6 +93,8 @@ if __name__=="__main__":
 
 	recebedor = rospy.Subscriber(topico_imagem, CompressedImage, roda_todo_frame, queue_size=4, buff_size = 2**24)
 	print("Usando ", topico_imagem)
+	sub = rospy.Subscriber("/bumper",UInt8,Bump)
+	pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
 
 	velocidade_saida = rospy.Publisher("/cmd_vel", Twist, queue_size = 1)
 
@@ -103,6 +118,86 @@ if __name__=="__main__":
 					velocidade_saida.publish(vel)
 					rospy.sleep(0.2)
 
+		if bumper == 1:
+
+			if velocidade == True:
+				vel = Twist(Vector3(-v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = False
+
+
+			else:
+				vel = Twist(Vector3(v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = True
+
+
+
+		elif bumper == 2:
+
+			if velocidade == True:
+				vel = Twist(Vector3(-v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = False
+
+
+			else:
+				vel = Twist(Vector3(v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = True
+
+
+		elif bumper == 3:
+
+			if velocidade == True:
+				vel = Twist(Vector3(-v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = False
+
+
+			else:
+				vel = Twist(Vector3(v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = True
+
+
+
+		elif bumper == 4:
+
+			if velocidade == True:
+				vel = Twist(Vector3(-v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = False
+
+
+			else:
+				vel = Twist(Vector3(v,0,0), Vector3(0,0,w))
+				pub.publish(vel)
+				rospy.sleep(0.1)
+				bumper = None
+				velocidade = True
+
+
+		else:
+
+			vel = Twist(Vector3(v,0,0), Vector3(0,0,0))
+			rospy.sleep(0.1)
+
+
 
 				# print("Média dos vermelhos: {0}, {1}".format(media[0], media[1]))
 				# print("Centro dos vermelhos: {0}, {1}".format(centro[0], centro[1]))
@@ -112,4 +207,7 @@ if __name__=="__main__":
 	except rospy.ROSInterruptException:
 	    print("Ocorreu uma exceção com o rospy")
 
+
+
+		
 
